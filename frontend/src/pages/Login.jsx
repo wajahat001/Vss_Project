@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import api from '../lib/api'
+import api, { setAuthToken } from '../lib/api'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -16,7 +16,7 @@ export default function Login() {
       const { token, user } = res.data
       localStorage.setItem('token', token)
       localStorage.setItem('user', JSON.stringify(user))
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+      setAuthToken(token)
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Login failed')
