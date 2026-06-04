@@ -35,6 +35,7 @@ export default function Sidebar() {
         {/* manager + admin */}
         {(role === 'manager' || role === 'admin') && (
           <>
+            <NavItem to="/create-survey">Create Survey</NavItem>
             <NavItem to="/kanban">Kanban</NavItem>
             <NavItem to="/reports">Reports</NavItem>
           </>
