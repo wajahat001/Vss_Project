@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import api from '../lib/api'
+import api, { setAuthToken } from '../lib/api'
 
 const ROLES = ['employee', 'manager', 'admin']
 
@@ -21,8 +21,19 @@ export default function Signup() {
     setError('')
     setLoading(true)
     try {
-      await api.post('/api/auth/register', form)
-      navigate('/login')
+      const res = await api.post('/api/auth/register', form)
+      // admin goes to create company, others go to login
+      if (form.role === 'admin') {
+        // auto-login after register so they can call /api/companies with auth
+        const loginRes = await api.post('/api/auth/login', { email: form.email, password: form.password })
+        const { token, user } = loginRes.data
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
+        setAuthToken(token)
+        navigate('/create-company')
+      } else {
+        navigate('/login')
+      }
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed')
     } finally {
