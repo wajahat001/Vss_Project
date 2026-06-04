@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^node -e \"require\\('fs'\\)\\.writeFileSync\\('d:/VSSPROJECT/terminal-test\\.txt','ok'\\)\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^npm run build$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
