@@ -8,7 +8,7 @@ router.post('/create', auth, async (req, res) => {
   try {
     const { title, questions, frequency } = req.body;
     if (!title || !questions) return res.status(400).json({ error: 'title and questions are required' });
-    const survey = new Survey({ companyId: req.user.companyId, title, questions, frequency, ...req.body });
+    const survey = new Survey({ companyId: req.user.companyId, title, questions, frequency, isActive: true });
     await survey.save();
     res.status(201).json(survey);
   } catch (err) {
