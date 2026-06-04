@@ -1,27 +1,38 @@
 import React from 'react'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Cell,
+} from 'recharts'
 
-const sample = [
-  { week: 'W1', score: 0.4 },
-  { week: 'W2', score: 0.55 },
-  { week: 'W3', score: 0.6 },
-  { week: 'W4', score: 0.5 },
-]
+function scoreColor(score) {
+  if (score >= 0.6) return '#22c55e'
+  if (score >= 0.4) return '#eab308'
+  return '#ef4444'
+}
 
-export default function SentimentChart({ data = sample }){
+export default function SentimentChart({ data = [], xKey = 'department', title = 'Sentiment' }) {
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h3 className="text-sm font-semibold mb-2">Sentiment Trend</h3>
-      <div style={{ height: 220 }}>
-        <ResponsiveContainer>
-          <LineChart data={data}>
-            <XAxis dataKey="week" />
-            <YAxis domain={[0,1]} />
-            <Tooltip />
-            <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={2} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+    <div>
+      {title && <h3 className="text-sm font-semibold text-gray-600 mb-2">{title}</h3>}
+      <ResponsiveContainer width="100%" height={260}>
+        <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+          <XAxis dataKey={xKey} tick={{ fontSize: 12 }} />
+          <YAxis domain={[0, 1]} tickFormatter={v => `${(v * 100).toFixed(0)}%`} tick={{ fontSize: 12 }} />
+          <Tooltip formatter={v => `${(v * 100).toFixed(1)}%`} />
+          <Bar dataKey="avgScore" radius={[4, 4, 0, 0]}>
+            {data.map((entry, index) => (
+              <Cell key={index} fill={scoreColor(entry.avgScore)} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   )
 }
