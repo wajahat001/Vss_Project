@@ -2,7 +2,24 @@ const express = require('express');
 const Company = require('../models/Company');
 const auth = require('../middleware/authMiddleware');
 
+const User = require('../models/User');
+
 const router = express.Router();
+
+// POST /api/companies — create new company, assign companyId back to user
+router.post('/', auth, async (req, res) => {
+  try {
+    const { name, domain } = req.body;
+    if (!name) return res.status(400).json({ error: 'Company name is required' });
+    const company = new Company({ name, domain, departments: [] });
+    await company.save();
+    // assign this company to the user who created it
+    await User.findByIdAndUpdate(req.user.sub, { companyId: company._id });
+    res.status(201).json(company);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // GET /api/companies/:id
 router.get('/:id', auth, async (req, res) => {
