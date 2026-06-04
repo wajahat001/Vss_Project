@@ -6,8 +6,7 @@ const ROLES = ['employee', 'manager', 'admin']
 
 export default function Signup() {
   const [form, setForm] = useState({
-    name: '', email: '', password: '', role: 'employee',
-    companyId: '', department: ''
+    name: '', email: '', password: '', role: 'employee', department: ''
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -57,11 +56,6 @@ export default function Signup() {
         >
           {ROLES.map(r => <option key={r} value={r} className="capitalize">{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
         </select>
-        <input
-          name="companyId" value={form.companyId} onChange={change}
-          placeholder="Company ID (optional)"
-          className="w-full p-2 border rounded text-sm"
-        />
         <input
           name="department" value={form.department} onChange={change}
           placeholder="Department (e.g. Engineering)"

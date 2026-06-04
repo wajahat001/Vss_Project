@@ -10,7 +10,12 @@ router.post('/register', async (req, res) => {
     const { name, email, password, role, companyId, department } = req.body;
     if (!email || !password) return res.status(400).json({ error: 'email and password are required' });
     const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashed, role, companyId, department });
+    const userData = { name, email, password: hashed, role, department };
+    // only set companyId if it looks like a valid ObjectId (24 hex chars)
+    if (companyId && /^[a-fA-F0-9]{24}$/.test(companyId)) {
+      userData.companyId = companyId;
+    }
+    const user = new User(userData);
     await user.save();
     res.status(201).json({ ok: true });
   } catch (err) {
