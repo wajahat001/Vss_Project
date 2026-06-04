@@ -3,3 +3,10 @@ dist
 /.env
 /.env.*
 /.DS_Store
+
+# backend env
+backend/.env
+backend/.env.*
+
+# terraform — entire infra folder ignored
+infra/
