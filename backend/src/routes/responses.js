@@ -30,7 +30,7 @@ router.get('/my', auth, async (req, res) => {
     // only return responses for surveys belonging to this user's company
     const surveys = await Survey.find({ companyId: req.user.companyId }).select('_id');
     const surveyIds = surveys.map(s => s._id);
-    const responses = await Response.find({ surveyId: { $in: surveyIds } }).sort({ _id: -1 });
+    const responses = await Response.find({ surveyId: { $in: surveyIds } });
     res.json(responses);
   } catch (err) {
     res.status(500).json({ error: err.message });

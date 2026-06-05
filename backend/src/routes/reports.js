@@ -6,7 +6,6 @@ const SentimentLog = require('../models/SentimentLog');
 
 const router = express.Router();
 
-// POST /api/reports/export
 router.post('/export', auth, async (req, res) => {
   try {
     const Survey = require('../models/Survey');
@@ -16,7 +15,6 @@ router.post('/export', auth, async (req, res) => {
     const surveys = await Survey.find({ companyId: req.user.companyId }).select('_id title');
     const surveyIds = surveys.map(s => s._id);
 
-    // department breakdown
     const departmentScores = await Response.aggregate([
       { $match: { surveyId: { $in: surveyIds } } },
       {
@@ -27,18 +25,17 @@ router.post('/export', auth, async (req, res) => {
         },
       },
       { $project: { _id: 0, department: '$_id', avgScore: 1, count: 1 } },
-      { $sort: { avgScore: -1 } },
     ]);
+    departmentScores.sort((a, b) => b.avgScore - a.avgScore);
 
     const responseCount = departmentScores.reduce((sum, d) => sum + d.count, 0);
 
-    // week-by-week trends
     const trends = await SentimentLog.aggregate([
       { $match: { surveyId: { $in: surveyIds } } },
       { $group: { _id: '$weekNumber', avgScore: { $avg: '$avgScore' } } },
       { $project: { _id: 0, week: '$_id', avgScore: 1 } },
-      { $sort: { week: 1 } },
     ]);
+    trends.sort((a, b) => a.week - b.week);
 
     const pdfBuffer = await generateReport({
       companyName: company?.name,
