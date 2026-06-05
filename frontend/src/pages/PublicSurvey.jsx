@@ -114,7 +114,7 @@ export default function PublicSurvey() {
   )
 
   return (
-    <div className="min-h-screen bg-bg-0 px-4 py-10">
+    <div className="bg-bg-0 px-4 py-10" style={{ minHeight: '100vh', overflowY: 'auto', position: 'fixed', inset: 0, overflowX: 'hidden' }}>
       <div className="max-w-2xl mx-auto space-y-4">
         {/* branding */}
         <div className="flex items-center gap-3 mb-6">
@@ -196,16 +196,15 @@ export default function PublicSurvey() {
         </div>
 
         {/* submit */}
-        <div className="flex items-center justify-between gap-4 flex-wrap pt-2 pb-10">
-          <span className="flex items-center gap-2 text-text-1 text-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 pb-10">
+          <span className="flex items-center gap-2 text-text-1 text-sm text-center sm:text-left">
             <Icon name="lock" size={14} style={{ color: '#00D9A3' }} />
             No names, emails, or device info attached.
           </span>
           <button
             disabled={!canSubmit || submitting}
             onClick={submit}
-            style={{ height: 46, padding: '0 26px' }}
-            className="inline-flex items-center gap-2 rounded-btn font-semibold text-sm bg-grad text-[#0b0c12] shadow-btn-primary hover:shadow-btn-primary-hover hover:-translate-y-px hover:scale-[1.01] transition-all active:scale-[0.985] disabled:opacity-55 disabled:cursor-not-allowed">
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-[46px] px-7 rounded-btn font-semibold text-sm bg-grad text-[#0b0c12] shadow-btn-primary hover:shadow-btn-primary-hover hover:-translate-y-px hover:scale-[1.01] transition-all active:scale-[0.985] disabled:opacity-55 disabled:cursor-not-allowed">
             {submitting ? 'Submitting…' : <>Submit anonymously <Icon name="arrowRight" size={17} /></>}
           </button>
         </div>
