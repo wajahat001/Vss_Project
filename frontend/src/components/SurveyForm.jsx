@@ -183,17 +183,43 @@ export default function SurveyForm() {
                 </div>
               </div>
               <div className="pl-10">
-                {q.type === 'rating'
-                  ? <Stars value={answers[qid] || 0} onChange={v => setAnswer(qid, v)} />
-                  : (
-                    <textarea
-                      className="w-full bg-bg-2 border border-[#3a3d52] text-text-0 placeholder-text-2 rounded-input px-3.5 py-3 text-sm outline-none transition-all duration-200 focus:border-violet focus:shadow-focus-violet focus:bg-[#212640] resize-y min-h-[96px] leading-[1.55]"
-                      placeholder={q.placeholder || 'Your answer…'}
-                      value={answers[qid] || ''}
-                      onChange={e => setAnswer(qid, e.target.value)}
-                    />
-                  )
-                }
+                {q.type === 'rating' ? (
+                  <Stars value={answers[qid] || 0} onChange={v => setAnswer(qid, v)} />
+                ) : q.type === 'mcq' && q.options?.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {q.options.map((opt, oi) => {
+                      const selected = answers[qid] === opt
+                      return (
+                        <button
+                          key={oi}
+                          type="button"
+                          onClick={() => setAnswer(qid, opt)}
+                          className={[
+                            'w-full flex items-center gap-3 px-4 py-3 rounded-input border text-sm font-medium text-left transition-all',
+                            selected
+                              ? 'bg-violet/[0.14] border-violet/60 text-text-0'
+                              : 'bg-bg-2 border-[#3a3d52] text-text-1 hover:border-violet/30 hover:bg-white/[0.03] hover:text-text-0',
+                          ].join(' ')}
+                        >
+                          <span className={[
+                            'w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all flex items-center justify-center',
+                            selected ? 'border-violet bg-violet' : 'border-[#5D6178]',
+                          ].join(' ')}>
+                            {selected && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                          </span>
+                          {opt}
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <textarea
+                    className="w-full bg-bg-2 border border-[#3a3d52] text-text-0 placeholder-text-2 rounded-input px-3.5 py-3 text-sm outline-none transition-all duration-200 focus:border-violet focus:shadow-focus-violet focus:bg-[#212640] resize-y min-h-[96px] leading-[1.55]"
+                    placeholder={q.placeholder || 'Your answer…'}
+                    value={answers[qid] || ''}
+                    onChange={e => setAnswer(qid, e.target.value)}
+                  />
+                )}
               </div>
             </Card>
           )
