@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import Select from '../components/ui/Select'
+import Card from '../components/ui/Card'
 
 export default function CreateSurvey() {
   const [title, setTitle] = useState('')
@@ -10,33 +14,18 @@ export default function CreateSurvey() {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
-  function addQuestion() {
-    setQuestions(q => [...q, { text: '' }])
-  }
-
-  function removeQuestion(idx) {
-    setQuestions(q => q.filter((_, i) => i !== idx))
-  }
-
-  function updateQuestion(idx, value) {
-    setQuestions(q => q.map((item, i) => i === idx ? { text: value } : item))
-  }
+  function addQuestion() { setQuestions(q => [...q, { text: '' }]) }
+  function removeQuestion(idx) { setQuestions(q => q.filter((_, i) => i !== idx)) }
+  function updateQuestion(idx, value) { setQuestions(q => q.map((item, i) => i === idx ? { text: value } : item)) }
 
   async function submit(e) {
     e.preventDefault()
     setError('')
     const filled = questions.filter(q => q.text.trim())
-    if (filled.length === 0) {
-      setError('Add at least one question.')
-      return
-    }
+    if (filled.length === 0) { setError('Add at least one question.'); return }
     setLoading(true)
     try {
-      await api.post('/api/surveys/create', {
-        title,
-        frequency,
-        questions: filled,
-      })
+      await api.post('/api/surveys/create', { title, frequency, questions: filled })
       navigate('/dashboard')
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create survey')
@@ -46,42 +35,37 @@ export default function CreateSurvey() {
   }
 
   return (
-    <div className="p-6 max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Create Survey</h1>
+    <div className="max-w-2xl">
+      <h1 className="text-2xl font-semibold tracking-tight text-text-0 mb-1">Create Survey</h1>
+      <p className="text-text-1 text-sm mb-6">Build and activate a new survey for your team.</p>
 
-      {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
+      {error && (
+        <div className="mb-5 px-4 py-3 rounded-input bg-danger/10 border border-danger/30 text-danger text-sm">{error}</div>
+      )}
 
-      <form onSubmit={submit} className="space-y-6">
-        {/* title */}
-        <div className="bg-white rounded-lg shadow p-5">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Survey Title</label>
-          <input
+      <form onSubmit={submit} className="space-y-5">
+        <Card className="p-5 space-y-4">
+          <Input
+            label="Survey Title"
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="e.g. Weekly Pulse Check"
             required
-            className="w-full border rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
-          <label className="block text-sm font-medium text-gray-700 mt-3 mb-1">Frequency</label>
-          <select
-            value={frequency}
-            onChange={e => setFrequency(e.target.value)}
-            className="w-full border rounded p-2 text-sm text-gray-700"
-          >
+          <Select label="Frequency" value={frequency} onChange={e => setFrequency(e.target.value)}>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
-          </select>
-        </div>
+          </Select>
+        </Card>
 
-        {/* questions */}
-        <div className="bg-white rounded-lg shadow p-5">
+        <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-gray-700">Questions</h2>
+            <h2 className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-1">Questions</h2>
             <button
               type="button"
               onClick={addQuestion}
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              className="text-sm text-violet hover:text-violet-2 font-semibold transition-colors"
             >
               + Add question
             </button>
@@ -89,35 +73,35 @@ export default function CreateSurvey() {
 
           <div className="space-y-3">
             {questions.map((q, idx) => (
-              <div key={idx} className="flex gap-2 items-start">
-                <span className="text-sm text-gray-400 mt-2 w-5 shrink-0">{idx + 1}.</span>
-                <input
-                  value={q.text}
-                  onChange={e => updateQuestion(idx, e.target.value)}
-                  placeholder="Type your question here…"
-                  className="flex-1 border rounded p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-                />
+              <div key={idx} className="flex gap-3 items-start">
+                <span className="text-sm text-text-2 mt-[11px] w-5 shrink-0 font-medium">{idx + 1}.</span>
+                <div className="flex-1">
+                  <Input
+                    value={q.text}
+                    onChange={e => updateQuestion(idx, e.target.value)}
+                    placeholder="Type your question here…"
+                  />
+                </div>
                 {questions.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeQuestion(idx)}
-                    className="text-red-400 hover:text-red-600 mt-2 text-xs"
+                    className="mt-[11px] text-text-2 hover:text-danger transition-colors"
+                    aria-label="Remove question"
                   >
-                    ✕
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
             ))}
           </div>
-        </div>
+        </Card>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-6 py-2 rounded font-medium text-sm"
-        >
+        <Button type="submit" disabled={loading}>
           {loading ? 'Creating…' : 'Create & Activate Survey'}
-        </button>
+        </Button>
       </form>
     </div>
   )

@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import api from '../lib/api'
+import Button from './ui/Button'
+import Input from './ui/Input'
+import Card from './ui/Card'
 
 export default function SurveyForm() {
   const [survey, setSurvey] = useState(null)
@@ -29,7 +32,7 @@ export default function SurveyForm() {
     const payload = {
       surveyId: survey._id,
       department: user?.department || '',
-      answers: Object.keys(answers).map(k => ({ questionId: k, answer: answers[k] }))
+      answers: Object.keys(answers).map(k => ({ questionId: k, answer: answers[k] })),
     }
     try {
       await api.post('/api/responses/submit', payload)
@@ -42,45 +45,56 @@ export default function SurveyForm() {
     }
   }
 
-  if (loading) return <div className="p-4 bg-white rounded shadow text-gray-500">Loading survey…</div>
-  if (!survey) return <div className="p-4 bg-white rounded shadow text-gray-500">No active survey at the moment.</div>
+  if (loading) return <Card className="p-6 text-text-1">Loading survey…</Card>
+  if (!survey) return <Card className="p-6 text-text-1">No active survey at the moment.</Card>
 
   if (submitted) return (
-    <div className="p-6 bg-white rounded shadow text-center">
-      <p className="text-green-600 font-semibold text-lg">Thank you!</p>
-      <p className="text-sm text-gray-500 mt-1">Your anonymous response has been recorded.</p>
-      <button onClick={() => setSubmitted(false)} className="mt-4 text-sm text-blue-600 hover:underline">
-        Submit another response
-      </button>
-    </div>
+    <Card className="p-10 text-center">
+      <div className="w-12 h-12 rounded-full bg-mint/10 border border-mint/30 grid place-items-center mx-auto mb-4">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00D9A3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <p className="text-lg font-semibold text-text-0 mb-1">Thank you!</p>
+      <p className="text-sm text-text-1 mb-6">Your anonymous response has been recorded.</p>
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-mint/[0.12] border border-mint/25 text-mint text-xs font-semibold">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" /><circle cx="12" cy="10" r="3" /></svg>
+        Fully anonymous
+      </div>
+      <div className="mt-6">
+        <Button variant="secondary" onClick={() => setSubmitted(false)}>Submit another response</Button>
+      </div>
+    </Card>
   )
 
   return (
-    <form onSubmit={submit} className="space-y-4 bg-white p-6 rounded shadow">
-      <h3 className="text-lg font-semibold">{survey.title}</h3>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+    <form onSubmit={submit} className="space-y-5">
+      <Card className="p-6">
+        <h3 className="text-lg font-semibold tracking-tight text-text-0 mb-1">{survey.title}</h3>
+        <p className="text-sm text-text-1">All responses are anonymous.</p>
+      </Card>
+
+      {error && (
+        <div className="px-4 py-3 rounded-input bg-danger/10 border border-danger/30 text-danger text-sm">{error}</div>
+      )}
+
       <div className="space-y-4">
         {survey.questions?.map((q, idx) => (
-          <div key={q.id || idx}>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {q.text || q.question}
-            </label>
-            <input
-              required
-              className="w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+          <Card key={q.id || idx} className="p-5">
+            <Input
+              label={`${idx + 1}. ${q.text || q.question}`}
               value={answers[q.id || idx] || ''}
               onChange={e => setAnswer(q.id || idx, e.target.value)}
+              placeholder="Your answer…"
+              required
             />
-          </div>
+          </Card>
         ))}
       </div>
-      <button
-        type="submit"
-        disabled={submitting}
-        className="px-5 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded text-sm font-medium"
-      >
-        {submitting ? 'Submitting…' : 'Submit'}
-      </button>
+
+      <Button type="submit" disabled={submitting}>
+        {submitting ? 'Submitting…' : 'Submit response'}
+      </Button>
     </form>
   )
 }

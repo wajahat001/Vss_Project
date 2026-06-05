@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import api from '../lib/api'
+import Button from '../components/ui/Button'
+import Input from '../components/ui/Input'
+import Card from '../components/ui/Card'
 
 export default function AdminCompany() {
   const [companyName, setCompanyName] = useState('')
@@ -35,9 +38,7 @@ export default function AdminCompany() {
       const user = JSON.parse(localStorage.getItem('user') || '{}')
       await api.patch(`/api/companies/${user.companyId}`, { name: companyName, domain, departments })
       flash('Company profile saved.')
-    } catch {
-      flash('Failed to save company profile.', true)
-    }
+    } catch { flash('Failed to save company profile.', true) }
   }
 
   function addDepartment() {
@@ -47,10 +48,6 @@ export default function AdminCompany() {
     setNewDept('')
   }
 
-  function removeDepartment(dept) {
-    setDepartments(departments.filter(d => d !== dept))
-  }
-
   async function sendInvite(e) {
     e.preventDefault()
     if (!inviteEmail.trim()) return
@@ -58,96 +55,85 @@ export default function AdminCompany() {
       await api.post('/api/notifications/remind', { email: inviteEmail })
       flash(`Invite sent to ${inviteEmail}.`)
       setInviteEmail('')
-    } catch {
-      flash('Failed to send invite.', true)
-    }
+    } catch { flash('Failed to send invite.', true) }
   }
 
   return (
-    <div className="p-6 space-y-8 max-w-2xl">
-      <h1 className="text-2xl font-bold text-gray-800">Company Settings</h1>
+    <div className="max-w-2xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-text-0">Company Settings</h1>
+        <p className="text-text-1 text-sm mt-1">Manage your workspace, departments and invitations.</p>
+      </div>
 
-      {status && <p className="text-green-600 text-sm">{status}</p>}
-      {error  && <p className="text-red-600 text-sm">{error}</p>}
+      {status && (
+        <div className="px-4 py-3 rounded-input bg-mint/10 border border-mint/30 text-mint text-sm">{status}</div>
+      )}
+      {error && (
+        <div className="px-4 py-3 rounded-input bg-danger/10 border border-danger/30 text-danger text-sm">{error}</div>
+      )}
 
-      <section className="bg-white rounded-lg shadow p-5">
-        <h2 className="text-lg font-semibold mb-4">Company Profile</h2>
-        <form onSubmit={saveCompany} className="space-y-3">
-          <div>
-            <label className="text-sm text-gray-600 block mb-1">Company Name</label>
-            <input
-              value={companyName}
-              onChange={e => setCompanyName(e.target.value)}
-              className="w-full border rounded p-2 text-sm"
+      {/* Company Profile */}
+      <Card className="p-5 space-y-4">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-1">Company Profile</h2>
+        <form onSubmit={saveCompany} className="space-y-4">
+          <Input label="Company Name" value={companyName} onChange={e => setCompanyName(e.target.value)} required />
+          <Input label="Domain" value={domain} onChange={e => setDomain(e.target.value)} placeholder="e.g. acme.com" />
+          <Button type="submit">Save changes</Button>
+        </form>
+      </Card>
+
+      {/* Departments */}
+      <Card className="p-5 space-y-4">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-1">Departments</h2>
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Input
+              value={newDept}
+              onChange={e => setNewDept(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDepartment())}
+              placeholder="New department name"
+            />
+          </div>
+          <Button variant="secondary" type="button" onClick={addDepartment}>Add</Button>
+        </div>
+        {departments.length === 0 ? (
+          <p className="text-sm text-text-2 italic">No departments yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {departments.map(dept => (
+              <li key={dept} className="flex items-center justify-between px-3 py-2.5 rounded-input bg-white/[0.03] border border-border">
+                <span className="text-sm text-text-0">{dept}</span>
+                <button
+                  onClick={() => setDepartments(departments.filter(d => d !== dept))}
+                  className="text-text-2 hover:text-danger transition-colors"
+                  aria-label={`Remove ${dept}`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      {/* Invite */}
+      <Card className="p-5 space-y-4">
+        <h2 className="text-[11px] font-semibold uppercase tracking-[0.09em] text-text-1">Invite Employee</h2>
+        <form onSubmit={sendInvite} className="flex gap-2">
+          <div className="flex-1">
+            <Input
+              type="email"
+              value={inviteEmail}
+              onChange={e => setInviteEmail(e.target.value)}
+              placeholder="employee@company.com"
               required
             />
           </div>
-          <div>
-            <label className="text-sm text-gray-600 block mb-1">Domain</label>
-            <input
-              value={domain}
-              onChange={e => setDomain(e.target.value)}
-              placeholder="e.g. acme.com"
-              className="w-full border rounded p-2 text-sm"
-            />
-          </div>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-            Save
-          </button>
+          <Button type="submit">Send Invite</Button>
         </form>
-      </section>
-
-      <section className="bg-white rounded-lg shadow p-5">
-        <h2 className="text-lg font-semibold mb-4">Departments</h2>
-        <div className="flex gap-2 mb-3">
-          <input
-            value={newDept}
-            onChange={e => setNewDept(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDepartment())}
-            placeholder="New department name"
-            className="flex-1 border rounded p-2 text-sm"
-          />
-          <button
-            onClick={addDepartment}
-            className="bg-gray-700 hover:bg-gray-800 text-white px-3 py-2 rounded text-sm"
-          >
-            Add
-          </button>
-        </div>
-        {departments.length === 0 && (
-          <p className="text-sm text-gray-400 italic">No departments yet.</p>
-        )}
-        <ul className="space-y-2">
-          {departments.map(dept => (
-            <li key={dept} className="flex items-center justify-between bg-gray-50 rounded px-3 py-2 text-sm">
-              <span>{dept}</span>
-              <button
-                onClick={() => removeDepartment(dept)}
-                className="text-red-500 hover:text-red-700 text-xs"
-              >
-                Remove
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="bg-white rounded-lg shadow p-5">
-        <h2 className="text-lg font-semibold mb-4">Invite Employee</h2>
-        <form onSubmit={sendInvite} className="flex gap-2">
-          <input
-            type="email"
-            value={inviteEmail}
-            onChange={e => setInviteEmail(e.target.value)}
-            placeholder="employee@company.com"
-            required
-            className="flex-1 border rounded p-2 text-sm"
-          />
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-            Send Invite
-          </button>
-        </form>
-      </section>
+      </Card>
     </div>
   )
 }
