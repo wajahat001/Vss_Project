@@ -1,8 +1,17 @@
 const express = require('express');
 const Survey = require('../models/Survey');
 const Response = require('../models/Response');
+const SentimentLog = require('../models/SentimentLog');
 const auth = require('../middleware/authMiddleware');
 const { analyzeSentiment } = require('../services/sentimentService');
+
+function getWeekNumber(date) {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+  const yearStart = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
 
 const router = express.Router();
 
@@ -39,6 +48,20 @@ router.post('/public/:token/respond', async (req, res) => {
       resp.sentimentScore = await analyzeSentiment(allText);
     }
     await resp.save();
+
+    // update SentimentLog for trend chart
+    const dept = department || 'External';
+    const weekNumber = getWeekNumber(new Date());
+    const existing = await SentimentLog.findOne({ surveyId: survey._id, department: dept, weekNumber });
+    if (existing) {
+      const weekResponses = await Response.find({ surveyId: survey._id, department: dept });
+      const avg = weekResponses.reduce((s, r) => s + (r.sentimentScore || 0.5), 0) / weekResponses.length;
+      existing.avgScore = avg;
+      await existing.save();
+    } else {
+      await new SentimentLog({ surveyId: survey._id, department: dept, avgScore: resp.sentimentScore || 0.5, weekNumber }).save();
+    }
+
     res.status(201).json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
