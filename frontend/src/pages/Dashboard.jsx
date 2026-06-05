@@ -47,21 +47,58 @@ function StatCard({ label, value, sub, icon, tone = 'violet', delay = 0 }) {
   )
 }
 
+function ShareCard({ survey }) {
+  const [copied, setCopied] = useState(false)
+  if (!survey?.shareToken) return null
+  const link = `${window.location.origin}/s/${survey.shareToken}`
+
+  function copy() {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    })
+  }
+
+  return (
+    <Card className="p-5 animate-fade-up border-violet/20" style={{ animationDelay: '0.04s' }}>
+      <div className="flex items-center gap-4 flex-wrap justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <span style={{ width: 42, height: 42, borderRadius: 11, flexShrink: 0, display: 'grid', placeItems: 'center', background: 'rgba(108,99,255,0.14)', color: '#8B83FF', border: '1px solid rgba(108,99,255,0.25)' }}>
+            <Icon name="userplus" size={20} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-text-0">Share survey link</p>
+            <p className="text-[12px] text-text-1 mt-0.5 truncate max-w-[340px]">{link}</p>
+          </div>
+        </div>
+        <button onClick={copy}
+          className={['inline-flex items-center gap-2 h-9 px-4 rounded-btn text-[13px] font-semibold border transition-all', copied ? 'bg-mint/[0.14] text-mint border-mint/40' : 'bg-violet/[0.10] text-violet-2 border-violet/40 hover:bg-violet/[0.18]'].join(' ')}>
+          <Icon name={copied ? 'check' : 'clipboard'} size={14} stroke={2.4} />
+          {copied ? 'Copied!' : 'Copy link'}
+        </button>
+      </div>
+    </Card>
+  )
+}
+
 export default function Dashboard() {
   const [deptData, setDeptData] = useState([])
   const [trendData, setTrendData] = useState([])
+  const [activeSurvey, setActiveSurvey] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
     async function load() {
       try {
-        const [deptRes, trendRes] = await Promise.all([
+        const [deptRes, trendRes, surveyRes] = await Promise.all([
           api.get('/api/sentiment/dashboard'),
           api.get('/api/sentiment/trends'),
+          api.get('/api/surveys/active'),
         ])
         setDeptData(deptRes.data)
         setTrendData(trendRes.data)
+        setActiveSurvey(surveyRes.data)
       } catch (err) {
         setError(err.response?.data?.error || 'Failed to load dashboard data')
       } finally {
@@ -94,6 +131,9 @@ export default function Dashboard() {
           <Icon name="lock" size={13} /> No individual is ever identifiable
         </span>
       </div>
+
+      {/* share link */}
+      <ShareCard survey={activeSurvey} />
 
       {/* stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
