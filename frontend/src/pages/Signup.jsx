@@ -14,10 +14,8 @@ function Orbs() {
   )
 }
 
-const ROLES = ['employee', 'manager', 'admin']
-
 export default function Signup() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'employee', department: '' })
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'admin', department: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -91,20 +89,6 @@ export default function Signup() {
                 placeholder="Create a password" required minLength={6} className={inputCls} />
             </label>
 
-            {/* role + dept */}
-            <div className="grid grid-cols-2 gap-3">
-              <label className="flex flex-col gap-1.5">
-                <span className={labelCls}>Role</span>
-                <select name="role" value={form.role} onChange={change}
-                  className={inputCls + ' appearance-none cursor-pointer'}>
-                  {ROLES.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1.5">
-                <span className={labelCls}>Department</span>
-                <input name="department" value={form.department} onChange={change} placeholder="Engineering" className={inputCls} />
-              </label>
-            </div>
 
             <button type="submit" disabled={loading}
               className="w-full inline-flex items-center justify-center gap-2 h-[46px] rounded-btn font-semibold text-sm mt-2 bg-grad text-[#0b0c12] shadow-btn-primary hover:shadow-btn-primary-hover hover:-translate-y-px hover:scale-[1.01] transition-all active:scale-[0.985] disabled:opacity-55 disabled:cursor-not-allowed">
