@@ -2,7 +2,7 @@ import React from 'react'
 
 export default function Input({ label, error, className = '', textarea = false, ...props }) {
   const base = [
-    'w-full bg-bg-2 border border-border text-text-0 placeholder-text-2 rounded-input',
+    'w-full bg-bg-2 border border-[#3a3d52] text-text-0 placeholder-text-2 rounded-input',
     'text-sm outline-none transition-all duration-200',
     'focus:border-violet focus:shadow-focus-violet focus:bg-[#212640]',
     textarea ? 'px-3.5 py-3 resize-y min-h-[96px] leading-[1.55]' : 'h-11 px-3.5',
