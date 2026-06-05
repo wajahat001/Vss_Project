@@ -93,9 +93,6 @@ export default function Sidebar({ open, onClose }) {
           </>
         )}
 
-        {role === 'admin' && (
-          <NavItem to="/admin/company" iconKey="admin" label="Admin" />
-        )}
       </nav>
 
       {/* user card pinned to bottom */}
