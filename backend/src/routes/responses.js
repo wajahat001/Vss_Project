@@ -1,5 +1,6 @@
 const express = require('express');
 const Response = require('../models/Response');
+const Survey = require('../models/Survey');
 const auth = require('../middleware/authMiddleware');
 const anonymizer = require('../middleware/anonymizer');
 const { analyzeSentiment } = require('../services/sentimentService');
@@ -13,7 +14,6 @@ router.post('/submit', auth, anonymizer, async (req, res) => {
       return res.status(400).json({ error: 'surveyId, department, and answers are required' });
     }
     const resp = new Response({ surveyId, department, answers });
-    // run sentiment analysis on all answer text
     const allText = answers.map(a => a.answer).join(' ');
     if (allText.trim()) {
       resp.sentimentScore = await analyzeSentiment(allText);
@@ -27,7 +27,10 @@ router.post('/submit', auth, anonymizer, async (req, res) => {
 
 router.get('/my', auth, async (req, res) => {
   try {
-    const responses = await Response.find({ department: req.user.department });
+    // only return responses for surveys belonging to this user's company
+    const surveys = await Survey.find({ companyId: req.user.companyId }).select('_id');
+    const surveyIds = surveys.map(s => s._id);
+    const responses = await Response.find({ surveyId: { $in: surveyIds } }).sort({ createdAt: -1 });
     res.json(responses);
   } catch (err) {
     res.status(500).json({ error: err.message });
