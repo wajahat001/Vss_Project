@@ -71,7 +71,7 @@ export default function SurveyForm() {
 
   const questions = survey?.questions || []
   const required = questions.filter(q => !q.optional)
-  const answeredCount = required.filter(q => answers[q.id || q._id]).length
+  const answeredCount = required.filter((q, i) => answers[String(q.id || q._id || i)]).length
   const pct = required.length ? Math.round((answeredCount / required.length) * 100) : 0
   const canSubmit = answeredCount === required.length && required.length > 0
 
@@ -161,7 +161,7 @@ export default function SurveyForm() {
       {/* questions */}
       <div className="space-y-4">
         {questions.map((q, idx) => {
-          const qid = q.id || q._id || idx
+          const qid = String(q.id || q._id || idx)
           const done = !!answers[qid]
           return (
             <Card key={qid} hoverable className="p-5 animate-fade-up" style={{ animationDelay: `${idx * 0.05}s` }}>
