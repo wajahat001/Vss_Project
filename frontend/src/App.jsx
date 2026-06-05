@@ -10,6 +10,7 @@ import Reports from './pages/Reports'
 import AdminCompany from './pages/AdminCompany'
 import CreateCompany from './pages/CreateCompany'
 import CreateSurvey from './pages/CreateSurvey'
+import PublicSurvey from './pages/PublicSurvey'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -20,6 +21,7 @@ export default function App() {
         {/* public routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/s/:token" element={<PublicSurvey />} />
 
         {/* create-company is protected but has no sidebar/layout */}
         <Route path="/create-company" element={
