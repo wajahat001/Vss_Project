@@ -74,9 +74,16 @@ export default function Sidebar({ open, onClose }) {
 
       <nav className="flex flex-col gap-0.5 flex-1 overflow-y-auto" onClick={onClose}>
         <NavItem to="/dashboard" iconKey="dashboard" label="Dashboard" />
-        <NavItem to="/survey"    iconKey="survey"    label="Survey" />
-        <NavItem to="/history"   iconKey="history"   label="History" />
 
+        {/* Survey + History — employees only */}
+        {role === 'employee' && (
+          <>
+            <NavItem to="/survey"  iconKey="survey"  label="Survey" />
+            <NavItem to="/history" iconKey="history" label="History" />
+          </>
+        )}
+
+        {/* Manager + Admin tools */}
         {(role === 'manager' || role === 'admin') && (
           <>
             <div className="mx-3 my-2 h-px bg-border" />
