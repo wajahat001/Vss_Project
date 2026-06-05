@@ -12,6 +12,8 @@ router.post('/create', auth, async (req, res) => {
   try {
     const { title, questions, frequency } = req.body;
     if (!title || !questions) return res.status(400).json({ error: 'title and questions are required' });
+    // deactivate any existing active survey for this company
+    await Survey.updateMany({ companyId: req.user.companyId, isActive: true }, { isActive: false });
     const survey = new Survey({ companyId: req.user.companyId, title, questions, frequency, isActive: true });
     await survey.save();
     res.status(201).json(survey);
