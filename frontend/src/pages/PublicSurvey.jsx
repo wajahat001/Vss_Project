@@ -54,7 +54,7 @@ export default function PublicSurvey() {
   function setAnswer(qid, value) { setAnswers(a => ({ ...a, [qid]: value })) }
 
   const questions = survey?.questions || []
-  const answeredCount = questions.filter(q => answers[q.id || q._id]).length
+  const answeredCount = questions.filter((q, i) => answers[String(q.id || q._id || i)]).length
   const pct = questions.length ? Math.round((answeredCount / questions.length) * 100) : 0
   const canSubmit = answeredCount === questions.length && questions.length > 0
 
@@ -153,7 +153,7 @@ export default function PublicSurvey() {
         {/* questions */}
         <div className="space-y-4">
           {questions.map((q, idx) => {
-            const qid = q.id || q._id || idx
+            const qid = String(q.id || q._id || idx)
             const done = !!answers[qid]
             return (
               <Card key={qid} hoverable className="p-5 animate-fade-up" style={{ animationDelay: `${idx * 0.05}s` }}>
